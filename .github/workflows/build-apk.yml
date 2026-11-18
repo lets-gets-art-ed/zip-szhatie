@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,9 +23,20 @@ jobs:
           gradle-version: '8.14.3'
 
       - name: Сборка
-        run: gradle assembleDebug --no-daemon
+        run: |
+          gradle assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ZIP-Szhatie.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: ZIP-Szhatie-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ZIP-Szhatie.apk
+
+      - name: Выложить в Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: ZIP Сжатие — последняя версия
+          body: Скачайте ZIP-Szhatie.apk и откройте его на телефоне, чтобы установить.
+          make_latest: true
+          files: ZIP-Szhatie.apk
